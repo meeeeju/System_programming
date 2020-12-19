@@ -1,0 +1,25 @@
+void movesnakearray(int snakeXY[][SNAKE_ARRAY_SIZE],int snakelength,int direction)
+{
+  int i;
+  for(i=snakelength-1;i>=1;i--)
+  {
+    snakeXY[0][i]=snakeXY[0][i-1];
+    snakeXY[1][i]=snakeXY[1][i-1];
+  }
+  switch(direction)
+  {
+    case down_arrow:
+      snakeXY[1][0]++;
+      break;
+     case right_arrow:
+      snakeXY[0][0]++;
+      break;
+     case up_arrow:
+      snakeXY[1][0]--;
+      break;
+     case left_arrow:
+      snakeXY[0][0]--;
+      break;
+   }
+   return;
+}
