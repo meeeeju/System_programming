@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <curses.h>
+#include <fcntl.h>
+#include <string.h>
+#include <time.h>
+
+#define MAP_X 3
+#define MAP_Y 2
+#define MAP_WIDTH 50
+#define MAP_HEIGHT 20
+
+void draw_map();
+void title(void);
+
+int main(){
+    
+    initscr();
+    
+    clear();
+    title();
+    refresh();
+    
+    getch();
+    
+    endwin();
+}
+
+void draw_map(){
+    int i,j;
+    
+    for(i=0; i<MAP_WIDTH; i++){
+        move(MAP_Y,MAP_X+i);
+        addstr("*");
+    }
+    
+    for(i=MAP_Y+1; i<MAP_Y+MAP_HEIGHT-1; i++){
+        move(i, MAP_X);
+        addstr("*");
+        move(i,MAP_X+MAP_WIDTH-1);
+        addstr("*");
+       
+    }
+    
+    for(i=0; i<MAP_WIDTH; i++){
+        move(MAP_Y+MAP_HEIGHT-1, MAP_X+i);
+        addstr("*");
+    }
+
+}
+
+void title(void){
+    draw_map();
+    
+    move(MAP_Y+5, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("+--------------------------+");
+    move(MAP_Y+6, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("|        S N A K E         |");
+    move(MAP_Y+7, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("+--------------------------+");
+    
+    move(MAP_Y+9, MAP_X+(MAP_WIDTH/2)-12);
+    addstr("< PRESS ANY KEY TO START >");
+    
+    move(MAP_Y+11, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- up, down, right, left key : Move");
+    move(MAP_Y+12, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- s, f key : Speed");
+    move(MAP_Y+13, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- Q key : Quit");
+
+} 
