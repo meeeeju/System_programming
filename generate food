@@ -1,0 +1,16 @@
+int generateFood(int foodXY[], int width, int height, int snakeXY[][SNAKE_ARRAY_SIZE], int snakeLength)
+{
+
+    do
+    {
+        srand(time(NULL));
+        foodXY[0] = rand() % (width - 2) + 2;
+        srand(time(NULL));
+        foodXY[1] = rand() % (height - 6) + 2;
+    } while (collisionSnake(foodXY[0], foodXY[1], snakeXY, snakeLength, 0)); //This should prevent the "Food" from being created on top of the snake. - However the food has a chance to be created ontop of the snake, in which case the snake should eat it...
+
+    gotoxy(foodXY[0], foodXY[1]);
+    printf("%c", FOOD);
+
+    return(0);
+}
