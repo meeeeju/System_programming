@@ -1,0 +1,205 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <curses.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <string.h>
+#include <time.h>
+#include <sys/time.h>
+
+#define MAP_X 3
+#define MAP_Y 2
+#define MAP_WIDTH 50
+#define MAP_HEIGHT 20
+#define UP 72
+#define DOWN 80
+#define LEFT 75
+#define RIGHT 77
+
+void draw_map();
+void start();
+void title(void);
+void create_food();
+int eat();
+int set_ticker(int n_msecs);
+void move_msg(int signum);
+
+int score=0; //current score
+int dirX=1;
+int dirY=0;
+int length=0;
+int food[2];
+
+int x[100], y[100];
+
+int main(){
+    int ndelay=0;
+    int delay=200;
+    int c;
+    char str_score[10];
+    
+    initscr();
+    noecho();
+    clear();
+    title();
+    
+    while(1){
+        c = getch();
+        if(c==' ') start(); break;
+    }
+    
+    signal(SIGALRM, move_msg);
+    set_ticker(delay);
+    
+    while(1){
+        ndelay=0;
+        c=getch();
+        /*char buf[100];
+        move(0,0);
+        sprintf(buf, "%d", c);
+        addstr(buf);*/
+        if(c=='Q' || c=='q')
+            break;
+        else if(c=='B') {
+            dirY=1; dirX=0;
+        }
+        else if(c=='A') {
+            dirY=-1; dirX=0;
+        }
+        else if(c=='D') {
+            dirX=-1; dirY=0;
+        }
+        else if(c=='C') {
+            dirX=1; dirY=0;
+        }
+    }
+    
+    endwin();
+}
+
+void draw_map(){
+    int i,j;
+    
+    for(i=0; i<MAP_WIDTH; i++){
+        move(MAP_Y,MAP_X+i);
+        addstr("*");
+    }
+    
+    for(i=MAP_Y+1; i<MAP_Y+MAP_HEIGHT-1; i++){
+        move(i, MAP_X);
+        addstr("*");
+        move(i,MAP_X+MAP_WIDTH-1);
+        addstr("*");
+       
+    }
+    
+    for(i=0; i<MAP_WIDTH; i++){
+        move(MAP_Y+MAP_HEIGHT-1, MAP_X+i);
+        addstr("*");
+    }
+
+}
+
+void title(void){
+    draw_map();
+    
+    move(MAP_Y+5, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("+--------------------------+");
+    move(MAP_Y+6, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("|        S N A K E         |");
+    move(MAP_Y+7, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("+--------------------------+");
+    
+    move(MAP_Y+9, MAP_X+(MAP_WIDTH/2)-12);
+    addstr("< PRESS ANY KEY TO START >");
+    
+    move(MAP_Y+11, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- up, down, right, left key : Move");
+    move(MAP_Y+12, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- s, f key : Speed");
+    move(MAP_Y+13, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- Q key : Quit");
+    
+    refresh();
+}
+
+void start(){
+    char buf[100];
+    int i;
+    clear();
+    draw_map();
+    
+    move(MAP_HEIGHT+2, MAP_X+1);
+    addstr("score : ");
+    
+    sprintf(buf, "%d", score);
+    addstr(buf);
+    
+    length=1;
+    
+    for(i=0;i<length; i++){
+        x[i]=MAP_WIDTH/2+i;
+        y[i]=MAP_HEIGHT/2;
+    }
+    move(MAP_Y+y[0], MAP_X+x[0]);
+    addstr("@");
+    
+    create_food();
+    
+    refresh();
+}
+
+void create_food(){
+    do{
+        srand(time(NULL));
+        food[0]=rand()%(MAP_HEIGHT-2)+3;
+        srand(time(NULL));
+        food[1]=rand()%(MAP_WIDTH-1)+4;
+    }while(eat());
+    
+    move(food[0],food[1]);
+    addstr("O");
+    
+    refresh();
+}
+
+int eat(){
+    int touch=0;
+    
+    if(x[0]==food[1] && y[0]==food[0]){
+        move(food[0],food[1]);
+        addstr(" ");
+        touch=1;
+    }
+    
+    refresh();
+    
+    return touch;
+}
+
+int set_ticker( int n_msecs )
+{
+    struct itimerval new_timeset;
+    long    n_sec, n_usecs;
+    n_sec = n_msecs / 1000 ;        /* int part*/
+    n_usecs = ( n_msecs % 1000 ) * 1000L ;  /* remainder*/
+ 
+    new_timeset.it_interval.tv_sec = n_sec;        /* set reload */
+    new_timeset.it_interval.tv_usec = n_usecs;  /* new ticker value */
+    new_timeset.it_value.tv_sec     = n_sec;    /* store this */
+    new_timeset.it_value.tv_usec    = n_usecs;    /* and this */
+ 
+    return setitimer(ITIMER_REAL, &new_timeset, NULL);
+}
+
+void move_msg(int signum){
+    signal(SIGALRM, move_msg);
+    move(MAP_Y+y[0], MAP_X+x[0]);
+    addstr(" ");
+    y[0]=y[0]+dirY;
+    x[0]=x[0]+dirX;
+    move(MAP_Y+y[0], MAP_X+x[0]);
+    addstr("@");
+    
+    refresh();
+} 
