@@ -1,0 +1,5 @@
+#define up_arrow 'A'
+#define left_arrow 'D'
+#define right_arrow 'C'
+#define down_arrow 'B'
+#define enter_key 10
