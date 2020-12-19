@@ -1,0 +1,150 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <curses.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <string.h>
+#include <time.h>
+
+#define MAP_X 3
+#define MAP_Y 2
+#define MAP_WIDTH 50
+#define MAP_HEIGHT 20
+
+void draw_map();
+void start();
+void title(void);
+void create_food();
+int eat();
+
+int row; //current row
+int col; //current col
+int score=0; //current score
+int dir;
+int length=0;
+int speed;
+int food[2];
+
+int x[100], y[100];
+
+int main(){
+    int deley;
+    int ndeley;
+    int c;
+    char str_score[10];
+    
+    initscr();
+    
+    clear();
+    title();
+    
+    while(1){
+        c = getch();
+        if(c==' ') start(); break;
+    }
+    
+    
+    
+    getch();
+    endwin();
+}
+
+void draw_map(){
+    int i,j;
+    
+    for(i=0; i<MAP_WIDTH; i++){
+        move(MAP_Y,MAP_X+i);
+        addstr("*");
+    }
+    
+    for(i=MAP_Y+1; i<MAP_Y+MAP_HEIGHT-1; i++){
+        move(i, MAP_X);
+        addstr("*");
+        move(i,MAP_X+MAP_WIDTH-1);
+        addstr("*");
+       
+    }
+    
+    for(i=0; i<MAP_WIDTH; i++){
+        move(MAP_Y+MAP_HEIGHT-1, MAP_X+i);
+        addstr("*");
+    }
+
+}
+
+void title(void){
+    draw_map();
+    
+    move(MAP_Y+5, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("+--------------------------+");
+    move(MAP_Y+6, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("|        S N A K E         |");
+    move(MAP_Y+7, MAP_X+(MAP_WIDTH/2)-13);
+    addstr("+--------------------------+");
+    
+    move(MAP_Y+9, MAP_X+(MAP_WIDTH/2)-12);
+    addstr("< PRESS ANY KEY TO START >");
+    
+    move(MAP_Y+11, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- up, down, right, left key : Move");
+    move(MAP_Y+12, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- s, f key : Speed");
+    move(MAP_Y+13, MAP_X+(MAP_WIDTH/2)-17);
+    addstr("- Q key : Quit");
+    
+    refresh();
+}
+
+void start(){
+    char buf[100];
+    int i;
+    clear();
+    draw_map();
+    
+    move(MAP_HEIGHT+2, MAP_X+1);
+    addstr("score : ");
+    
+    sprintf(buf, "%d", score);
+    addstr(buf);
+    
+    length=1;
+    
+    for(i=0;i<length; i++){
+        x[i]=MAP_WIDTH/2+i;
+        y[i]=MAP_HEIGHT/2;
+    }
+    move(MAP_Y+y[0], MAP_X+x[0]);
+    addstr("@");
+    
+    create_food();
+    
+    refresh();
+}
+
+void create_food(){
+    do{
+        srand(time(NULL));
+        food[0]=rand()%(MAP_HEIGHT-2)+3;
+        srand(time(NULL));
+        food[1]=rand()%(MAP_WIDTH-1)+4;
+    }while(eat());
+    
+    move(food[0],food[1]);
+    addstr("O");
+    
+    refresh();
+}
+
+int eat(){
+    int touch=0;
+    
+    if(x[0]==food[1] && y[0]==food[0]){
+        move(food[0],food[1]);
+        addstr(" ");
+        touch=1;
+    }
+    
+    refresh();
+    
+    return touch;
+}
